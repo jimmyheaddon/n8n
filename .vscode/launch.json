@@ -1,7 +1,5 @@
 {
-	// Use IntelliSense to learn about possible attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	// Read .vscode/DEBUGGER.md for more information on how to use this file.
 	"version": "0.2.0",
 	"configurations": [
 		{
@@ -65,12 +63,12 @@
 			"request": "launch"
 		},
 		{
-			"name": "Debug Frontend (Chrome)",
+			"name": "Launch and Debug All (Production)",
 			"type": "chrome",
 			"request": "launch",
 			"url": "http://localhost:8080",
 			"webRoot": "${workspaceFolder}/packages/frontend/editor-ui",
-			"preLaunchTask": "Start All Servers (Backend + Frontend)",
+			"preLaunchTask": "Debug All (Production)",
 			"sourceMaps": true,
 			"resolveSourceMapLocations": [
 			  "${workspaceFolder}/**",
@@ -99,74 +97,9 @@
 			  "--no-first-run",
 			  "--no-default-browser-check"
 			],
-			"trace": true,
 			"env": {
 			  "BROWSER": "none"
 			}
-		  },
-		  {
-			"name": "Attach to Frontend (Chrome)",
-			"type": "chrome",
-			"request": "attach",
-			"port": 9222,
-			"url": "http://localhost:8080",
-			"webRoot": "${workspaceFolder}/packages/frontend/editor-ui",
-			"sourceMaps": true,
-			"resolveSourceMapLocations": [
-			  "${workspaceFolder}/**",
-			  "!**/node_modules/**"
-			],
-			"sourceMapPathOverrides": {
-			  "webpack:///src/*": "${webRoot}/src/*",
-			  "webpack:///./*": "${webRoot}/*",
-			  "webpack:///*": "*",
-			  "http://localhost:8080/src/*": "${webRoot}/src/*",
-			  "/src/*": "${webRoot}/src/*",
-			  "/@fs/*": "*",
-			  "/@fs/${workspaceFolderBasename}/*": "${workspaceFolder}/*",
-			  "/@fs/${workspaceFolderBasename}/packages/frontend/editor-ui/*": "${webRoot}/*",
-			  "/@fs/${workspaceFolderBasename}/packages/frontend/editor-ui/src/*": "${webRoot}/src/*",
-			  "/*": "${webRoot}/*"
-			},
-			"pathMapping": {
-			  "/": "${webRoot}",
-			  "/src": "${webRoot}/src"
-			},
-			"skipFiles": ["<node_internals>/**"],
-			"trace": true
-		  }
+		}
 	]
-
-	/**
-		How this works:
-
-		BACKEND DEBUGGING:
-		This file gives VS Code the ability to start and debug n8n backend code.
-		The "Launch n8n with debug" option starts n8n and allows you to add breakpoints to
-		code residing inside `cli`, `core`, `workflow` and `nodes-base` packages.
-
-		You can also choose to "Attach to running n8n". This is useful if you
-		have n8n running in another terminal window and want to debug it.
-		Once you click to Debug, VS Code will prompt you to select a process to attach to.
-
-		FRONTEND DEBUGGING:
-		To debug frontend TypeScript files in `packages/frontend/editor-ui`:
-
-		Option 1: Automatic (Recommended)
-		- Use "Debug Frontend (Chrome)" - it will automatically start both backend and frontend
-		  servers before launching Chrome
-		- Set breakpoints in your TypeScript files in `packages/frontend/editor-ui/src`
-		- The breakpoints should work thanks to the source map configuration in vite.config.mts
-
-		Option 2: Manual
-		- Manually start servers first:
-		  1. Backend: pnpm start (from root) OR pnpm dev (for hot reload)
-		  2. Frontend: cd packages/frontend/editor-ui && pnpm serve
-		- Then use "Attach to Frontend (Chrome)" to connect to already running Chrome
-		  (Start Chrome with: chrome --remote-debugging-port=9222)
-
-		Note: The frontend runs in the browser, so it requires a browser-based debugger,
-		not the Node.js debugger used for backend code. The automatic option uses VS Code
-		tasks to start both servers before launching the debugger.
-	*/
 }

@@ -1,8 +1,9 @@
 {
+	// Read .vscode/DEBUGGER.md for more information on how to use this file.
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Start Backend (n8n)",
+			"label": "Start All",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["start"],
@@ -30,7 +31,7 @@
 			}
 		},
 		{
-			"label": "Start Frontend Dev Server",
+			"label": "Start Frontend",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["serve"],
@@ -58,14 +59,13 @@
 			}
 		},
 		{
-			"label": "Start All Servers (Backend + Frontend)",
+			"label": "Debug All (Production)",
 			"dependsOn": [
-				"Start Backend (n8n)",
-				"Start Frontend Dev Server"
+				"Start All",
+				"Start Frontend"
 			],
 			"dependsOrder": "parallel",
 			"problemMatcher": []
 		}
 	]
 }
-
