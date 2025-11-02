@@ -1970,11 +1970,6 @@ export function useCanvasOperations() {
 	): Promise<WorkflowDataUpdate> {
 		uiStore.resetLastInteractedWith();
 
-		// If it is JSON check if it looks on the first look like data we can use
-		if (!workflowData.hasOwnProperty('nodes') || !workflowData.hasOwnProperty('connections')) {
-			return {};
-		}
-
 		try {
 			const nodeIdMap: { [prev: string]: string } = {};
 			if (workflowData.nodes) {

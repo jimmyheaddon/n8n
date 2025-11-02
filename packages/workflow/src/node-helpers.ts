@@ -2,11 +2,11 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+import { ApplicationError } from '@n8n/errors';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
 import { EXECUTE_WORKFLOW_NODE_TYPE, WORKFLOW_TOOL_LANGCHAIN_NODE_TYPE } from './constants';
-import { ApplicationError } from '@n8n/errors';
 import { NodeConnectionTypes } from './interfaces';
 import type {
 	FieldType,
@@ -825,31 +825,65 @@ export function getNodeParameters(
 				return nodeValues;
 			}
 
+			// Validate that propertyValues is an object before iterating
+			if (propertyValues && typeof propertyValues !== 'object') {
+				throw new ApplicationError(
+					`Expected an object value for property '${nodeProperties.name}' but got a ${typeof propertyValues}`,
+					{
+						extra: { property: nodeProperties.name },
+					},
+				);
+			}
+
 			// Iterate over all collections
 			for (const itemName of Object.keys(propertyValues || {})) {
+				const itemValue = (propertyValues as INodeParameters)[itemName];
+
+				// Ensure itemValue exists and validate its structure
+				if (itemValue === undefined || itemValue === null) {
+					continue;
+				}
+
 				if (
 					nodeProperties.typeOptions !== undefined &&
 					nodeProperties.typeOptions.multipleValues === true
 				) {
 					// Multiple can be set so will be an array
+					// Ensure itemValue is actually an array
+					if (!Array.isArray(itemValue)) {
+						throw new ApplicationError(
+							`Expected an array of values for property '${nodeProperties.name}' option '${itemName}' but got an ${typeof itemValue}`,
+							{
+								extra: { propertyOption: itemName, property: nodeProperties.name },
+							},
+						);
+					}
 
 					const tempArrayValue: INodeParameters[] = [];
-					// Collection values should always be an object
-					if (typeof propertyValues !== 'object' || Array.isArray(propertyValues)) {
-						continue;
-					}
+
 					// Iterate over all items as it contains multiple ones
-					for (const nodeValue of (propertyValues as INodeParameters)[
-						itemName
-					] as INodeParameters[]) {
+					for (const nodeValue of itemValue as INodeParameters[]) {
+						// Ensure nodeValue is an object
+						if (!nodeValue || typeof nodeValue !== 'object' || Array.isArray(nodeValue)) {
+							throw new ApplicationError(
+								`Expected an object value for property '${nodeProperties.name}' option '${itemName}' but got a ${typeof nodeValue}`,
+								{
+									extra: { propertyOption: itemName, property: nodeProperties.name },
+								},
+							);
+						}
+
 						nodePropertyOptions = nodeProperties.options!.find(
 							(nodePropertyOptions) => nodePropertyOptions.name === itemName,
 						) as INodePropertyCollection;
 
 						if (nodePropertyOptions === undefined) {
-							throw new ApplicationError('Could not find property option', {
-								extra: { propertyOption: itemName, property: nodeProperties.name },
-							});
+							throw new ApplicationError(
+								`Could not find property '${nodeProperties.name}' option '${itemName}'`,
+								{
+									extra: { propertyOption: itemName, property: nodeProperties.name },
+								},
+							);
 						}
 
 						tempNodePropertiesArray = nodePropertyOptions.values!;
@@ -876,6 +910,16 @@ export function getNodeParameters(
 					// Only one can be set so is an object of objects
 					tempNodeParameters = {};
 
+					// Ensure itemValue is an object
+					if (typeof itemValue !== 'object' || Array.isArray(itemValue)) {
+						throw new ApplicationError(
+							`Expected an object value for property '${nodeProperties.name}' option '${itemName}' but got a ${typeof itemValue}`,
+							{
+								extra: { propertyOption: itemName, property: nodeProperties.name },
+							},
+						);
+					}
+
 					// Get the options of the current item
 
 					const nodePropertyOptions = nodeProperties.options!.find(
@@ -886,7 +930,7 @@ export function getNodeParameters(
 						tempNodePropertiesArray = (nodePropertyOptions as INodePropertyCollection).values!;
 						tempValue = getNodeParameters(
 							tempNodePropertiesArray,
-							(nodeValues[nodeProperties.name] as INodeParameters)[itemName] as INodeParameters,
+							itemValue as INodeParameters,
 							returnDefaults,
 							returnNoneDisplayed,
 							node,
