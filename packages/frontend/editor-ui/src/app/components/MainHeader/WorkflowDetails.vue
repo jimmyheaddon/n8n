@@ -52,7 +52,10 @@ import { hasPermission } from '@/app/utils/rbac/permissions';
 import type { PathItem } from '@n8n/design-system/components/N8nBreadcrumbs/Breadcrumbs.vue';
 import { type BaseTextKey, useI18n } from '@n8n/i18n';
 import { getResourcePermissions } from '@n8n/permissions';
-import type { WorkflowDataUpdate } from '@n8n/rest-api-client/api/workflows';
+import {
+	WorkflowDataUpdateSchema,
+	type WorkflowDataUpdate,
+} from '@n8n/rest-api-client/api/workflows';
 import { createEventBus } from '@n8n/utils/event-bus';
 import { saveAs } from 'file-saver';
 import {
@@ -74,6 +77,7 @@ import {
 	N8nInlineTextEdit,
 	N8nTooltip,
 } from '@n8n/design-system';
+import { createErrorSummary, validateJson } from '@/utils/json-parser';
 const WORKFLOW_NAME_BP_TO_WIDTH: { [key: string]: number } = {
 	XS: 150,
 	SM: 200,
@@ -429,22 +433,26 @@ async function handleFileImport(): Promise<void> {
 	if (inputRef?.files && inputRef.files.length !== 0) {
 		const reader = new FileReader();
 		reader.onload = () => {
-			let workflowData: WorkflowDataUpdate;
 			try {
-				workflowData = JSON.parse(reader.result as string);
-			} catch (error) {
-				toast.showMessage({
-					title: locale.baseText('mainSidebar.showMessage.handleFileImport.title'),
-					message: locale.baseText('mainSidebar.showMessage.handleFileImport.message'),
-					type: 'error',
-				});
-				return;
+				const result = validateJson<WorkflowDataUpdate>(
+					reader.result as string,
+					WorkflowDataUpdateSchema,
+				);
+
+				if (!result.valid) {
+					toast.showMessage({
+						title: locale.baseText('mainSidebar.showMessage.handleFileImport.title'),
+						message: createErrorSummary(result.errors),
+						type: 'error',
+					});
+
+					return;
+				}
+				nodeViewEventBus.emit('importWorkflowData', { data: result.data });
 			} finally {
 				reader.onload = null;
 				inputRef.value = '';
 			}
-
-			nodeViewEventBus.emit('importWorkflowData', { data: workflowData });
 		};
 		reader.readAsText(inputRef.files[0]);
 	}
@@ -936,6 +944,7 @@ const onWorkflowActiveToggle = async (value: { id: string; active: boolean }) =>
 					:class="$style.hiddenInput"
 					type="file"
 					data-test-id="workflow-import-input"
+					accept=".json,application/json"
 					@change="handleFileImport()"
 				/>
 				<N8nActionDropdown
