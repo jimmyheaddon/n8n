@@ -63,7 +63,7 @@
 			"request": "launch"
 		},
 		{
-			"name": "Launch and Debug All (Production)",
+			"name": "Launch Editor UI with Debugging (Production)",
 			"type": "chrome",
 			"request": "launch",
 			"url": "http://localhost:8080",

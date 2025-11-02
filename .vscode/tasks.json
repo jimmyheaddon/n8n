@@ -3,7 +3,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Start All",
+			"label": "Start (All)",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["start"],
@@ -31,7 +31,38 @@
 			}
 		},
 		{
-			"label": "Start Frontend",
+			"label": "Start (No Server)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["start"],
+			"options": {
+				"cwd": "${workspaceFolder}",
+				"env": {
+					"N8N_SERVER_DISABLED": "true"
+				}
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "^$",
+					"file": 1,
+					"location": 2,
+					"message": 3
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*",
+					"endsPattern": "(n8n ready on)"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "n8n-servers"
+			}
+		},
+		{
+			"label": "Serve Frontend",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["serve"],
@@ -61,8 +92,8 @@
 		{
 			"label": "Debug All (Production)",
 			"dependsOn": [
-				"Start All",
-				"Start Frontend"
+				"Start (No Server)",
+				"Serve Frontend"
 			],
 			"dependsOrder": "parallel",
 			"problemMatcher": []

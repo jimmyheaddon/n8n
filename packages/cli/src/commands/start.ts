@@ -347,9 +347,11 @@ export class Start extends BaseCommand<z.infer<typeof flagsSchema>> {
 		// Start to get active workflows and run their triggers
 		await this.activeWorkflowManager.init();
 
-		const editorUrl = this.getEditorUrl();
+		if (process.env.N8N_SERVER_DISABLED !== 'true') {
+			const editorUrl = this.getEditorUrl();
 
-		this.log(`\nEditor is now accessible via:\n${editorUrl}`);
+			this.log(`\nEditor is now accessible via:\n${editorUrl}`);
+		}
 
 		// Allow to open n8n editor by pressing "o"
 		if (Boolean(process.stdout.isTTY) && process.stdin.setRawMode) {
@@ -357,12 +359,14 @@ export class Start extends BaseCommand<z.infer<typeof flagsSchema>> {
 			process.stdin.resume();
 			process.stdin.setEncoding('utf8');
 
-			if (flags.open) {
-				this.openBrowser();
+			if (process.env.N8N_SERVER_DISABLED !== 'true') {
+				if (flags.open) {
+					this.openBrowser();
+				}
+				this.log('\nPress "o" to open in Browser.');
 			}
-			this.log('\nPress "o" to open in Browser.');
 			process.stdin.on('data', (key: string) => {
-				if (key === 'o') {
+				if (key === 'o' && process.env.N8N_SERVER_DISABLED !== 'true') {
 					this.openBrowser();
 				} else if (key.charCodeAt(0) === 3) {
 					// Ctrl + c got pressed
