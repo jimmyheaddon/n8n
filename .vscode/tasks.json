@@ -1,0 +1,71 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Backend (n8n)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["start"],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "^$",
+					"file": 1,
+					"location": 2,
+					"message": 3
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*",
+					"endsPattern": "(n8n ready on|Editor is now accessible)"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "n8n-servers"
+			}
+		},
+		{
+			"label": "Start Frontend Dev Server",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["serve"],
+			"options": {
+				"cwd": "${workspaceFolder}/packages/frontend/editor-ui"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"pattern": {
+					"regexp": "^$",
+					"file": 1,
+					"location": 2,
+					"message": 3
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*",
+					"endsPattern": "(ready in [0-9]+\\s?ms|➜\\s+Local:\\s+http://localhost:8080)"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "n8n-servers"
+			}
+		},
+		{
+			"label": "Start All Servers (Backend + Frontend)",
+			"dependsOn": [
+				"Start Backend (n8n)",
+				"Start Frontend Dev Server"
+			],
+			"dependsOrder": "parallel",
+			"problemMatcher": []
+		}
+	]
+}
+

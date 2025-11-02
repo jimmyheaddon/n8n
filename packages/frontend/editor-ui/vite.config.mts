@@ -197,7 +197,11 @@ export default mergeConfig(
 		resolve: { alias },
 		base: publicPath,
 		envPrefix: ['VUE', 'N8N_ENV_FEAT'],
+		esbuild: {
+			sourcemap: !release,
+		},
 		css: {
+			devSourcemap: !release,
 			preprocessorOptions: {
 				scss: {
 					additionalData: [
@@ -216,6 +220,7 @@ export default mergeConfig(
 		optimizeDeps: {
 			esbuildOptions: {
 				target,
+				sourcemap: !release,
 			},
 		},
 		worker: {
